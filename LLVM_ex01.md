@@ -108,7 +108,7 @@
    | 參數          | 功能                                                         |
    | ------------- | ------------------------------------------------------------ |
    | -mem2reg      | This file promotes memory references to be register references. It promotes alloca instructions which only have loads and stores as uses. An `alloca` is transformed by using dominator frontiers to place phi nodes, then traversing the function in depth-first order to rewrite loads and stores as appropriate. This is just the standard SSA construction algorithm to construct “pruned” SSA form. |
-   | -o <filename> | 關閉最佳化                                                   |
+   | -o [filename] | 關閉最佳化                                                   |
    
    結果產生test01.ll
    
@@ -222,11 +222,11 @@
    %6 = add nsw i32 %4, %5 
    ```
 
-    <result> = add nsw <ty> <op1>, <op2> 
+    [result] = add nsw [ty] [op1], [op2]
 
    就是做加法 ~ %6 = %4 + %5（簡單看就是這樣)
 
-   nsw代表No Signed Wrap，就是當無號加法overflow時<result>的值為未定義，另外還有nuw代表No Unsigned Wrap，就是當有號加法overflow時<result>的值為未定義
+   nsw代表No Signed Wrap，就是當無號加法overflow時(result)的值為未定義，另外還有nuw代表No Unsigned Wrap，就是當有號加法overflow時(result)的值為未定義
 
    下面是沒有最佳化的LLVM IR(bitcode反組譯得來的）的簡單註解
 
