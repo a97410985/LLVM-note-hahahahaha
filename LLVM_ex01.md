@@ -140,6 +140,16 @@
 
    這組語不知道為什麼翻的有點智障，可能是沒有最佳化的關係？
 
+   1. 出現的數字跟記憶體有關的話單位都是byte
+
+   2. sp和s0跟stack息息相關，呼叫函數sp會往下挖，而s0會在sp原本的位置，在存變數的過程會大概像這樣
+
+      存sw a0, -20(s0) ~ sw a0, -24(s0) ~ sw a0, -28(s0)，就存的地方越來越下面
+
+   3. double~8bytes ; integer~4bytes
+
+   下面是test.c的講解
+
    ```assembly
    	.text
    	.file	"test.c"
@@ -150,15 +160,15 @@
    .Lfoo$local:
    # %bb.0:
    	addi	sp, sp, -32 # sp(stack pointer）
-   	sd	ra, 24(sp) # ra(return address)，將ra存到『sp指向的記憶體位置+24bit～sp指向的記憶體位置+32bit』
-   	sd	s0, 16(sp) # s0( Saved register or Frame pointer)，將ra存到『sp指向的記憶體位置+16bit～sp指向的記憶體位置+24bit』
-   	addi	s0, sp, 32 # sp+32存到s0。變回原本呼叫函數前sp的位址 -> 開始往下存變數到stack，存完s0就往下
+   	sd	ra, 24(sp) # ra(return address)，將ra存到『sp指向的記憶體位置+24byte～sp指向的記憶體位置+32byte』
+   	sd	s0, 16(sp) # s0( Saved register or Frame pointer)，將ra存到『sp指向的記憶體位置+16byte～sp指向的記憶體位置+24byte』
+   	addi	s0, sp, 32 # sp+32存到s0。變回原本呼叫函數前sp的位址 -> 開始往下存變數到stack～sw xxx, 更大的負數(s0)
    	addi	a0, zero, 10 # a0當作a變數，初始化為10
    	sw	a0, -20(s0) # 將a0存到『s0 - 20 bit 位址』
    	addi	a0, zero, 20 # 又將a0當作b變數，初始化為20
-   	sw	a0, -24(s0) # 將a0存到『s0 - 24 bit
-   	lw	a0, -20(s0) # a0有存10
-   	lw	a1, -24(s0) # a1有存20
+   	sw	a0, -24(s0) # 將a0存到『s0 - 24 byte』
+   	lw	a0, -20(s0) # a0存10
+   	lw	a1, -24(s0) # a1存20
    	add	a0, a0, a1 # a0 = 10 + 20
    	sw	a0, -28(s0) # 存a0(值30)到『s0-28』
    	lw	a0, -28(s0) # 再load 30回去(智障?)a0
