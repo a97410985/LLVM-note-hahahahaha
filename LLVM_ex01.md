@@ -135,3 +135,43 @@
    ```
    
    
+
+5. 組語解讀
+
+   這組語不知道為什麼翻的有點智障，可能是沒有最佳化的關係？
+
+   ```assembly
+   	.text
+   	.file	"test.c"
+   	.globl	foo                     # -- Begin function foo
+   	.p2align	1
+   	.type	foo,@function
+   foo:                                    # @foo
+   .Lfoo$local:
+   # %bb.0:
+   	addi	sp, sp, -32 # sp(stack pointer）
+   	sd	ra, 24(sp) # ra(return address)，將ra存到『sp指向的記憶體位置+24bit～sp指向的記憶體位置+32bit』
+   	sd	s0, 16(sp) # s0( Saved register or Frame pointer)，將ra存到『sp指向的記憶體位置+16bit～sp指向的記憶體位置+24bit』
+   	addi	s0, sp, 32 # sp+32存到s0。變回原本呼叫函數前sp的位址 -> 開始往下存變數到stack，存完s0就往下
+   	addi	a0, zero, 10 # a0當作a變數，初始化為10
+   	sw	a0, -20(s0) # 將a0存到『s0 - 20 bit 位址』
+   	addi	a0, zero, 20 # 又將a0當作b變數，初始化為20
+   	sw	a0, -24(s0) # 將a0存到『s0 - 24 bit
+   	lw	a0, -20(s0) # a0有存10
+   	lw	a1, -24(s0) # a1有存20
+   	add	a0, a0, a1 # a0 = 10 + 20
+   	sw	a0, -28(s0) # 存a0(值30)到『s0-28』
+   	lw	a0, -28(s0) # 再load 30回去(智障?)a0
+   	ld	s0, 16(sp) # 回覆原本的值s0的值
+   	ld	ra, 24(sp) # 回覆原本的ra(return address)
+   	addi	sp, sp, 32 # 把指向堆疊尾巴的sp加回去原本的位址
+   	ret # 回傳
+   .Lfunc_end0:
+   	.size	foo, .Lfunc_end0-foo
+                                           # -- End function
+   	.ident	"clang version 11.0.0 (https://github.com/llvm/llvm-project.git 05c0d3491822b3a74f49be2fe8c8273e436ab7ec)"
+   	.section	".note.GNU-stack","",@progbits
+   	.addrsig
+   ```
+
+   
