@@ -146,7 +146,7 @@
 
       存sw a0, -20(s0) ~ sw a0, -24(s0) ~ sw a0, -28(s0)，就存的地方越來越下面
 
-   3. double~8bytes ; integer~4bytes
+   3. double - 8bytes ; integer - 4bytes
 
    下面是test.c的講解
 
