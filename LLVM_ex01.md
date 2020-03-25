@@ -184,4 +184,105 @@
    	.addrsig
    ```
 
+   LLVM IR的一些基本指令和介紹
+
+   參考網址：https://releases.llvm.org/2.6/docs/LangRef.html#i_alloca
+
+   %number -> 可能是值會記憶體位址（有人說是指標，有人說是local variable）
+
+   ```assembly
+    %1 = alloca i32, align 4 
+   ```
+
+   %1 -> 指標，指向配置的記憶體
+
+   alloca -> 分配stack記憶體的指令，當函數回傳會自動釋放記憶體
+
+   i32->整數型態？~32bit
+
+   align 4 -> 對齊4bytes（記憶體必定佔用4bytes，這樣存取會比較整齊，記憶體對齊）
+
+   ```assembly
+     store i32 10, i32* %1, align 4 
+   ```
+
+   | store | i32                            | 10       | i32*%1,                     | align 4    |
+   | ----- | ------------------------------ | -------- | --------------------------- | ---------- |
+   |       | 要存的值的型態(integer-32bit?) | 要存的值 | 指標指向的記憶體(大小32bit) | 對齊4bytes |
+
+   就是將10存到%1指向的記憶體位址
+
+   ```assembly
+   %4 = load i32, i32* %1, align 4
+   ```
+
+   將%1指向的記憶體中的值取出來給%4（%4代表的是值?，%number指的可能是記憶體位址或值?)
+
+   ```assembly
+   %6 = add nsw i32 %4, %5 
+   ```
+
+    <result> = add nsw <ty> <op1>, <op2> 
+
+   就是做加法 ~ %6 = %4 + %5（簡單看就是這樣)
+
+   nsw代表No Signed Wrap，就是當無號加法overflow時<result>的值為未定義，另外還有nuw代表No Unsigned Wrap，就是當有號加法overflow時<result>的值為未定義
+
+   下面是沒有最佳化的LLVM IR(bitcode反組譯得來的）的簡單註解
+
+   ```assembly
+   ; ModuleID = 'test.bc'
+   source_filename = "test.c"
+   target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
+   target triple = "riscv64-unknown-unknown-elf"
+   
+   ; Function Attrs: noinline nounwind
+   define dso_local signext i32 @foo() #0 {
+     %1 = alloca i32, align 4  # 宣告4bytes記憶體，讓%1指標指向它
+     %2 = alloca i32, align 4  # 宣告4bytes記憶體，讓%2指標指向它
+     %3 = alloca i32, align 4  # 宣告4bytes記憶體，讓%3指標指向它
+     store i32 10, i32* %1, align 4  # %1指向的記憶體位址存10
+     store i32 20, i32* %2, align 4 # %2指向的記憶體位址存20
+     %4 = load i32, i32* %1, align 4 # %4=10
+     %5 = load i32, i32* %2, align 4 # %5 =20
+     %6 = add nsw i32 %4, %5 # %6 = %4 + %5 -> %6 = 10 + 20 = 30
+     store i32 %6, i32* %3, align 4 # %6是值存到%3記憶體位址
+     %7 = load i32, i32* %3, align 4 # %7是%3記憶體位址的值（智障?)
+     ret i32 %7 # 回傳%7（值～30)
+   }
+   
+   attributes #0 = { noinline nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="all" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-features"="+a,+c,+m,+relax,-save-restore" "unsafe-fp-math"="false" "use-soft-float"="false" }
+   
+   !llvm.module.flags = !{!0, !1}
+   !llvm.ident = !{!2}
+   
+   !0 = !{i32 1, !"wchar_size", i32 4}
+   !1 = !{i32 1, !"target-abi", !"lp64"}
+   !2 = !{!"clang version 11.0.0 (https://github.com/llvm/llvm-project.git 05c0d3491822b3a74f49be2fe8c8273e436ab7ec)"}
+   ```
+
+   下面是最佳化的LLVM IR的簡單註解，就直接做加法，不像個智障load, store反覆
+
+   ```assembly
+   ; ModuleID = 'test01.bc'
+   source_filename = "test.c"
+   target datalayout = "e-m:e-p:64:64-i64:64-i128:128-n64-S128"
+   target triple = "riscv64-unknown-unknown-elf"
+   
+   ; Function Attrs: noinline nounwind
+   define dso_local signext i32 @foo() #0 {
+     %1 = add nsw i32 10, 20
+     ret i32 %1
+   }
+   
+   attributes #0 = { noinline nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "frame-pointer"="all" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-features"="+a,+c,+m,+relax,-save-restore" "unsafe-fp-math"="false" "use-soft-float"="false" }
+   
+   !llvm.module.flags = !{!0, !1}
+   !llvm.ident = !{!2}
+   
+   !0 = !{i32 1, !"wchar_size", i32 4}
+   !1 = !{i32 1, !"target-abi", !"lp64"}
+   !2 = !{!"clang version 11.0.0 (https://github.com/llvm/llvm-project.git 05c0d3491822b3a74f49be2fe8c8273e436ab7ec)"}
+   ```
+
    
