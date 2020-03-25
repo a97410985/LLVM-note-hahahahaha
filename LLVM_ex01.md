@@ -164,7 +164,7 @@
    	sd	s0, 16(sp) # s0( Saved register or Frame pointer)，將ra存到『sp指向的記憶體位置+16byte～sp指向的記憶體位置+24byte』
    	addi	s0, sp, 32 # sp+32存到s0。變回原本呼叫函數前sp的位址 -> 開始往下存變數到stack～sw xxx, 更大的負數(s0)
    	addi	a0, zero, 10 # a0當作a變數，初始化為10
-   	sw	a0, -20(s0) # 將a0存到『s0 - 20 bit 位址』
+   	sw	a0, -20(s0) # 將a0存到『s0 - 20 byte位址』
    	addi	a0, zero, 20 # 又將a0當作b變數，初始化為20
    	sw	a0, -24(s0) # 將a0存到『s0 - 24 byte』
    	lw	a0, -20(s0) # a0存10
