@@ -109,9 +109,9 @@
    | ------------- | ------------------------------------------------------------ |
    | -mem2reg      | This file promotes memory references to be register references. It promotes alloca instructions which only have loads and stores as uses. An `alloca` is transformed by using dominator frontiers to place phi nodes, then traversing the function in depth-first order to rewrite loads and stores as appropriate. This is just the standard SSA construction algorithm to construct “pruned” SSA form. |
    | -o [filename] | 關閉最佳化                                                   |
-   
+
    結果產生test01.ll
-   
+
    ```assembly
    ; ModuleID = 'test01.bc'
    source_filename = "test.c"
@@ -133,10 +133,10 @@
    !1 = !{i32 1, !"target-abi", !"lp64"}
    !2 = !{!"clang version 11.0.0 (https://github.com/llvm/llvm-project.git 05c0d3491822b3a74f49be2fe8c8273e436ab7ec)"}
    ```
-   
-   
 
-5. 組語解讀
+   堆疊
+
+   組語解讀
 
    這組語不知道為什麼翻的有點智障，可能是沒有最佳化的關係？
 
@@ -188,7 +188,7 @@
 
    參考網址：https://releases.llvm.org/2.6/docs/LangRef.html#i_alloca
 
-   %number -> 可能是值會記憶體位址（有人說是指標，有人說是local variable）
+   %number -> 可能是值或記憶體位址（有人說是指標，有人說是local variable）
 
    ```assembly
     %1 = alloca i32, align 4 
@@ -224,7 +224,7 @@
 
     [result] = add nsw [ty] [op1], [op2]
 
-   就是做加法 ~ %6 = %4 + %5（簡單看就是這樣)
+   就是做加法  %6 = %4 + %5（簡單看就是這樣)
 
    nsw代表No Signed Wrap，就是當無號加法overflow時(result)的值為未定義，另外還有nuw代表No Unsigned Wrap，就是當有號加法overflow時(result)的值為未定義
 
@@ -261,7 +261,7 @@
    !2 = !{!"clang version 11.0.0 (https://github.com/llvm/llvm-project.git 05c0d3491822b3a74f49be2fe8c8273e436ab7ec)"}
    ```
 
-   下面是最佳化的LLVM IR的簡單註解，就直接做加法，不像個智障load, store反覆
+   下面是最佳化的LLVM IR的簡單註解，就直接做加法，不像個智障load, store反覆，因為發現要做的其實可以視為兩個常數相加，所以直接用一個LLVM定義的指令就完成了
 
    ```assembly
    ; ModuleID = 'test01.bc'
@@ -285,4 +285,31 @@
    !2 = !{!"clang version 11.0.0 (https://github.com/llvm/llvm-project.git 05c0d3491822b3a74f49be2fe8c8273e436ab7ec)"}
    ```
 
-   
+
+
+
+### 如何生成control flow graph
+
+1. 方法一（我試過dot檔好像會有問題)
+
+   就將xxx.bc檔生出dot檔
+
+   ```text
+   opt -dot-cfg test.bc -o test.dot
+   ```
+
+   ```latex
+   dot -Tpng test.dot -o test.png
+   ```
+
+   dot的參數-Tpng還可以換成其他東西生成其他類型的圖檔
+
+   像是 : -Tsvg和-Tjpeg還有很多其他的東西
+
+2. 方法二（怪怪的作法）
+
+   ```text
+   opt –view-cfg identity.bc
+   ```
+
+   感覺是沒裝到可以開啟dot檔的程式，所以會在開啟時有問題，但是已經生成了我們要的檔案
