@@ -112,15 +112,21 @@
    ```
 
 4. 順便附上老師給的x86指令集
+
    https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf 
 
    
 
 5. **Reference** [網站都給你了 自己點進去看看]
+
    https://c9x.me/x86/html/file_module_x86_id_269.html
+
    https://c9x.me/x86/html/file_module_x86_id_176.html
+
    https://c9x.me/x86/html/file_module_x86_id_308.html
+
    https://hackmd.io/@dange/rk9xmgHKX?type=view
 
 6. Cheat sheet for x86-64 [不確定規格是不是對的]
+
    https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
