@@ -122,5 +122,5 @@
    https://c9x.me/x86/html/file_module_x86_id_308.html
    https://hackmd.io/@dange/rk9xmgHKX?type=view
 
-6. Cheat sheet for x86-64 [不確定規格是對的]
+6. Cheat sheet for x86-64 [不確定規格是不是對的]
    https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
