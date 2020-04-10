@@ -54,3 +54,63 @@
 
 
 
+### Bonus part
+
+1. 基本配置 只要有基本的 x86 gcc compiler 就可以用了
+
+2. 操作步驟很簡單
+   依照順序執行下面的指令 [假定你的程式碼名稱為test.c]
+
+   ```makefile
+   gcc test.c -o test
+   ```
+
+   指定可執行檔的名稱為test 然後就會看到test檔
+
+   執行看看
+
+   ``` makefile
+   ./test
+   ```
+
+   就如一般的可執行檔執行
+
+3. disassemble the executable file
+   接著要把可執行檔反組譯成 assembly code
+   操作下面指令
+
+   ``` makefile
+   objdump test --disassemble > test.txt
+   ```
+
+   objdump test --disassemble這行本身是在將 可執行檔test反組譯回 assembly code
+
+   如果直接執行
+
+   ``` makefile
+   objdump test --disassemble
+   ```
+
+   反組譯後的 assembly code就會跑到視窗上
+
+   \> test.txt 則是 匯出到test.txt檔
+
+   打開test.txt 就會看到以下的code
+
+   ``` assembly
+   
+   test:     file format elf64-x86-64
+   
+   
+   Disassembly of section .init:
+   
+   0000000000001000 <_init>:
+       1000:	48 83 ec 08          	sub    $0x8,%rsp
+       1004:	48 8b 05 dd 2f 00 00 	mov    0x2fdd(%rip),%rax        # 3fe8 <__gmon_start__>
+       
+   (....以下省略)
+   ```
+
+4. 順便附上老師給的x86指令集
+   https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf 
+
